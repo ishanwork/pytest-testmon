@@ -490,7 +490,7 @@ class TestmonCollector:
                     set(cov.config.run_include + params["include"])
                 )
 
-            params["omit"] = cov.config.run_omit
+            # params["omit"] = cov.config.run_omit
 
             if cov.config.branch:
                 self._should_branch = True
