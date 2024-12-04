@@ -495,7 +495,7 @@ class TestmonCollector:
             #         "branch coverage is on. Please disable branch coverage."
             #     )
 
-        self.cov = Coverage(data_file=self.sub_cov_file, config_file=False, **params)
+        self.cov = Coverage(data_file=self.sub_cov_file, data_suffix=True, config_file=False, **params)
         print(f"COVERAGE CONFIG FILE: {self.cov.config.config_file}")
         self.cov._warn_no_data = False
         if TestmonCollector.coverage_stack:
@@ -541,18 +541,18 @@ class TestmonCollector:
                 dont_include=self._interrupted_at
             )
 
-            if (
-                len(TestmonCollector.coverage_stack) > 1
-                and TestmonCollector.coverage_stack[-1] == self.cov
-            ):
-                filtered_lines_data = {
-                    file: data
-                    for file, data in lines_data.items()
-                    if should_include(TestmonCollector.coverage_stack[-2], file)
-                }
-                TestmonCollector.coverage_stack[-2].get_data().add_lines(
-                    filtered_lines_data
-                )
+            # if (
+            #     len(TestmonCollector.coverage_stack) > 1
+            #     and TestmonCollector.coverage_stack[-1] == self.cov
+            # ):
+            #     filtered_lines_data = {
+            #         file: data
+            #         for file, data in lines_data.items()
+            #         if should_include(TestmonCollector.coverage_stack[-2], file)
+            #     }
+            #     TestmonCollector.coverage_stack[-2].get_data().add_lines(
+            #         filtered_lines_data
+            #     )
 
             self.cov.erase()
             self.cov.start()
