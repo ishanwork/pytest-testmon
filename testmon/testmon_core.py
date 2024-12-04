@@ -540,18 +540,18 @@ class TestmonCollector:
                 dont_include=self._interrupted_at
             )
 
-            # if (
-            #     len(TestmonCollector.coverage_stack) > 1
-            #     and TestmonCollector.coverage_stack[-1] == self.cov
-            # ):
-            #     filtered_lines_data = {
-            #         file: data
-            #         for file, data in lines_data.items()
-            #         if should_include(TestmonCollector.coverage_stack[-2], file)
-            #     }
-            #     TestmonCollector.coverage_stack[-2].get_data().add_lines(
-            #         filtered_lines_data
-            #     )
+            if (
+                len(TestmonCollector.coverage_stack) > 1
+                and TestmonCollector.coverage_stack[-1] == self.cov
+            ):
+                filtered_lines_data = {
+                    file: data
+                    for file, data in lines_data.items()
+                    if should_include(TestmonCollector.coverage_stack[-2], file)
+                }
+                TestmonCollector.coverage_stack[-2].get_data().add_lines(
+                    filtered_lines_data
+                )
 
             self.cov.erase()
             self.cov.start()
