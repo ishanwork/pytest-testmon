@@ -434,7 +434,8 @@ class TestmonCollector:
         self.rootdir = rootdir
         self.testmon_labels = testmon_labels
         self.cov: Coverage = None
-        self.sub_cov_file = ".coverage.testmon"
+        # self.sub_cov_file = ".coverage.testmon"
+        self.sub_cov_file = None
         self.cov_plugin: CovPlugin = cov_plugin
         self._test_name = None
         self._next_test_name = None
