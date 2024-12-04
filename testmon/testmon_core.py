@@ -496,6 +496,7 @@ class TestmonCollector:
             #     )
 
         self.cov = Coverage(data_file=self.sub_cov_file, config_file=True, **params)
+        print(f"COVERAGE CONFIG FILE: {self.cov.config.config_file}")
         self.cov._warn_no_data = False
         if TestmonCollector.coverage_stack:
             TestmonCollector.coverage_stack[-1].stop()
