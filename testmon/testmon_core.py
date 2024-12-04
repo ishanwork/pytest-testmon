@@ -495,7 +495,7 @@ class TestmonCollector:
             #         "branch coverage is on. Please disable branch coverage."
             #     )
 
-        self.cov = Coverage(data_file=self.sub_cov_file, config_file=True, **params)
+        self.cov = Coverage(data_file=self.sub_cov_file, config_file=True, branch=True, **params)
         print(f"COVERAGE CONFIG FILE: {self.cov.config.config_file}")
         self.cov._warn_no_data = False
         if TestmonCollector.coverage_stack:
