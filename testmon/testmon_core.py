@@ -536,7 +536,7 @@ class TestmonCollector:
             or self._interrupted_at
         ):
             self.cov.stop()
-            nodes_files_lines, lines_data = self.get_nodes_files_lines(
+            nodes_files_lines, lines_data, arcs_data = self.get_nodes_files_lines(
                 dont_include=self._interrupted_at
             )
 
@@ -544,13 +544,22 @@ class TestmonCollector:
                 len(TestmonCollector.coverage_stack) > 1
                 and TestmonCollector.coverage_stack[-1] == self.cov
             ):
-                filtered_lines_data = {
+                # filtered_lines_data = {
+                #     file: data
+                #     for file, data in lines_data.items()
+                #     if should_include(TestmonCollector.coverage_stack[-2], file)
+                # }
+                # TestmonCollector.coverage_stack[-2].get_data().add_lines(
+                #     filtered_lines_data
+                # )
+
+                filtered_arcs_data = {
                     file: data
-                    for file, data in lines_data.items()
+                    for file, data in arcs_data.items()
                     if should_include(TestmonCollector.coverage_stack[-2], file)
                 }
-                TestmonCollector.coverage_stack[-2].get_data().add_lines(
-                    filtered_lines_data
+                TestmonCollector.coverage_stack[-2].get_data().add_arcs(
+                    filtered_arcs_data
                 )
 
             self.cov.erase()
@@ -563,10 +572,13 @@ class TestmonCollector:
         files = cov_data.measured_files()
         nodes_files_lines = {}
         files_lines = {}
+        files_arcs = {}
         for file in files:
             relfilename = cached_relpath(file, self.rootdir)
 
             contexts_by_lineno = cov_data.contexts_by_lineno(file)
+
+            files_arcs.setdefault(file, set()).update(cov_data.arcs(file))
 
             for lineno, contexts in contexts_by_lineno.items():
                 for context in contexts:
@@ -574,13 +586,14 @@ class TestmonCollector:
                         relfilename, set()
                     ).add(lineno)
                     files_lines.setdefault(file, set()).add(lineno)
+
         nodes_files_lines.pop(dont_include, None)
         self.batched_test_names.discard(dont_include)
         nodes_files_lines.pop("", None)
         for test_name in self.batched_test_names:
             if home_file(test_name) not in nodes_files_lines.setdefault(test_name, {}):
                 nodes_files_lines[test_name].setdefault(home_file(test_name), {1})
-        return nodes_files_lines, files_lines
+        return nodes_files_lines, files_lines, files_arcs
 
     def close(self):
         if self.cov is None:
