@@ -442,6 +442,7 @@ class TestmonCollector:
         self.check_stack = []
         self.is_started = False
         self._interrupted_at = None
+        self._should_branch = None
 
     def start_cov(self):
         if not self.cov._started:
@@ -489,13 +490,14 @@ class TestmonCollector:
                     set(cov.config.run_include + params["include"])
                 )
             # params["omit"] = cov.config.run_omit
-            # if cov.config.branch:
+            if cov.config.branch:
+                self._should_branch = True
             #     raise TestmonException(
             #         "testmon doesn't support simultaneous run with pytest-cov when "
             #         "branch coverage is on. Please disable branch coverage."
             #     )
 
-        self.cov = Coverage(data_file=self.sub_cov_file, data_suffix=True, config_file=False, branch=True, **params)
+        self.cov = Coverage(data_file=self.sub_cov_file, data_suffix=True, config_file=False, branch=self._should_branch, **params)
         self.cov._warn_no_data = False
         if TestmonCollector.coverage_stack:
             TestmonCollector.coverage_stack[-1].stop()
@@ -544,23 +546,24 @@ class TestmonCollector:
                 len(TestmonCollector.coverage_stack) > 1
                 and TestmonCollector.coverage_stack[-1] == self.cov
             ):
-                # filtered_lines_data = {
-                #     file: data
-                #     for file, data in lines_data.items()
-                #     if should_include(TestmonCollector.coverage_stack[-2], file)
-                # }
-                # TestmonCollector.coverage_stack[-2].get_data().add_lines(
-                #     filtered_lines_data
-                # )
-
-                filtered_arcs_data = {
-                    file: data
-                    for file, data in arcs_data.items()
-                    if should_include(TestmonCollector.coverage_stack[-2], file)
-                }
-                TestmonCollector.coverage_stack[-2].get_data().add_arcs(
-                    filtered_arcs_data
-                )
+                if self._should_branch:
+                    filtered_arcs_data = {
+                        file: data
+                        for file, data in arcs_data.items()
+                        if should_include(TestmonCollector.coverage_stack[-2], file)
+                    }
+                    TestmonCollector.coverage_stack[-2].get_data().add_arcs(
+                        filtered_arcs_data
+                    )
+                else:
+                    filtered_lines_data = {
+                        file: data
+                        for file, data in lines_data.items()
+                        if should_include(TestmonCollector.coverage_stack[-2], file)
+                    }
+                    TestmonCollector.coverage_stack[-2].get_data().add_lines(
+                        filtered_lines_data
+                    )
 
             self.cov.erase()
             self.cov.start()
